@@ -28,3 +28,39 @@
   **[] $VALUES;
   public *;
 }
+
+
+#指定代码的压缩级别
+-optimizationpasses 5
+
+#包明不混合大小写
+-dontusemixedcaseclassnames
+
+#不去忽略非公共的库类
+-dontskipnonpubliclibraryclasses
+
+#优化  不优化输入的类文件
+-dontoptimize
+
+#预校验
+-dontpreverify
+
+#混淆时是否记录日志
+-verbose
+
+# 混淆时所采用的算法
+-optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
+
+#保护注解
+-keepattributes *Annotation*
+#如果引用了v4或者v7包
+-dontwarn android.support.**
+-keep class android.support.**{*;}
+#保持 native 方法不被混淆
+-keepclasseswithmembernames class * {
+native <methods>;
+}
+#保持 Serializable 不被混淆
+-keepnames class * implements java.io.Serializable
+-keep class * implements java.io.Serializable{*;}
+-keep class com.google.gson.** { *;}

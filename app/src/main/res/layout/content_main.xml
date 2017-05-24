@@ -17,6 +17,7 @@
         android:background="#888888"
         android:scaleType="centerInside"/>
 
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/take_photo"
         android:layout_width="wrap_content"
@@ -43,4 +44,13 @@
         android:layout_alignParentLeft="true"
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@android:drawable/ic_dialog_map"/>
+
+    <EditText
+        android:id="@+id/editTextResult"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/extract"
+        android:layout_below="@id/img"
+        android:ems="10"
+        android:inputType="textMultiLine"/>
 </RelativeLayout>

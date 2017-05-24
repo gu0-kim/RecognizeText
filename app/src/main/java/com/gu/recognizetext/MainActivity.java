@@ -3,14 +3,13 @@ package com.gu.recognizetext;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaScannerConnection;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.v4.content.FileProvider;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -20,15 +19,15 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -37,17 +36,28 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     private ImageView img;
+    private FloatingActionButton takePhotoBtn, clipPhotoBtn, extractBtn;
+    private EditText editTextResult;
+    /*
+    文件路径
+     */
+    private String mCurrentPhotoPath;
+    /*
+    文件名
+     */
+    private String mImageFileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        editTextResult = (EditText) findViewById(R.id.editTextResult);
         img = (ImageView) findViewById(R.id.img);
         img.setOnClickListener(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton takePhotoBtn = (FloatingActionButton) findViewById(R.id.take_photo);
+        takePhotoBtn = (FloatingActionButton) findViewById(R.id.take_photo);
         takePhotoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -55,17 +65,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        FloatingActionButton clipPhotoBtn = (FloatingActionButton) findViewById(R.id.clip_photo);
+        clipPhotoBtn = (FloatingActionButton) findViewById(R.id.clip_photo);
         clipPhotoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
             }
         });
 
-        FloatingActionButton extractBtn = (FloatingActionButton) findViewById(R.id.extract);
+        extractBtn = (FloatingActionButton) findViewById(R.id.extract);
         extractBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                takePhotoBtn.setEnabled(false);
+                clipPhotoBtn.setEnabled(false);
+                extractBtn.setEnabled(false);
+                editTextResult.setText("图片处理中，请稍后...");
+                new PostDataTask(MainActivity.this, mCurrentPhotoPath, editTextResult, takePhotoBtn, clipPhotoBtn, extractBtn).execute();
             }
         });
 
@@ -78,8 +93,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
     }
 
-    String mCurrentPhotoPath;
-    String mImageFileName;
 
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
@@ -104,14 +117,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         file.delete();
     }
 
-    public File getPicFileDir() {
-        String picPath = Environment.getExternalStorageDirectory() + File.separator + "ExtractText" + File.separator + "pic";
-        File fdir = new File(picPath);
-        if (!fdir.exists())
-            fdir.mkdirs();
-        return fdir;
-    }
-
     static final int REQUEST_TAKE_PHOTO = 1;
 
     private void dispatchTakePictureIntent() {
@@ -132,22 +137,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void galleryAddPic() {
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        File f = new File(mCurrentPhotoPath);
-        Uri contentUri = Uri.fromFile(f);
-        mediaScanIntent.setData(contentUri);
-        sendBroadcast(mediaScanIntent);
-    }
-
-
-    public static void addImageToGallery(final String filePath, final Context context) {
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
-        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-        values.put(MediaStore.MediaColumns.DATA, filePath);
-        context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-    }
 
     private void setPic() {
         Glide.with(this).load(mCurrentPhotoPath).into(img);
@@ -158,10 +147,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             setPic();
-            galleryAddPic();
-            //            addImageToGallery(mCurrentPhotoPath, this);
+            ImageHelper.galleryAddPic(this, mCurrentPhotoPath);
         } else if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_CANCELED) {
-//            deleteExternalStoragePublicPicture(mImageFileName);
+            deleteExternalStoragePublicPicture(mImageFileName);
         }
     }
 

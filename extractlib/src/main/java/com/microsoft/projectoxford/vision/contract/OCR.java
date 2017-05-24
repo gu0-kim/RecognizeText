@@ -32,8 +32,9 @@
 //
 package com.microsoft.projectoxford.vision.contract;
 
+import java.io.Serializable;
 import java.util.List;
-public class OCR {
+public class OCR implements Serializable{
     public boolean isAngleDetected;
 
     public float textAngle;
