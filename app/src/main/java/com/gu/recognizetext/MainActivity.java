@@ -1,9 +1,8 @@
 package com.gu.recognizetext;
 
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -21,17 +20,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import static android.R.attr.path;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
@@ -41,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     /*
     文件路径
      */
-    private String mCurrentPhotoPath;
+    private String mCurrentPhotoPath, mClipSavePath;
     /*
     文件名
      */
@@ -69,6 +67,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         clipPhotoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (mCurrentPhotoPath != null) {
+                    mClipSavePath = createExternalStoragePublicPicture(getImageFileName()).getPath();
+                    ClipImageActivity.prepare().aspectX(3).aspectY(2)//裁剪框横向及纵向上的比例
+                            .inputPath(mCurrentPhotoPath).outputPath(mClipSavePath)//要裁剪的图片地址及裁剪后保存的地址
+                            .startForResult(MainActivity.this, REQUEST_CLIP_IMAGE);
+                }
             }
         });
 
@@ -95,12 +99,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        mImageFileName = "JPEG_" + timeStamp + ".jpg";
+        mImageFileName = getImageFileName();
         File image = createExternalStoragePublicPicture(mImageFileName);
         mCurrentPhotoPath = image.getAbsolutePath();
         Log.e("tag", "createImageFile: mCurrentPhotoPath= " + mCurrentPhotoPath);
         return image;
+    }
+
+    private String getImageFileName() {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        return "JPEG_" + timeStamp + ".jpg";
     }
 
     private File createExternalStoragePublicPicture(String fileName) {
@@ -118,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     static final int REQUEST_TAKE_PHOTO = 1;
+    static final int REQUEST_CLIP_IMAGE = 2;
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -138,18 +147,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
-    private void setPic() {
-        Glide.with(this).load(mCurrentPhotoPath).into(img);
+    private void setPic(String path) {
+        Glide.with(this).load(path).into(img);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
-            setPic();
+            setPic(mCurrentPhotoPath);
             ImageHelper.galleryAddPic(this, mCurrentPhotoPath);
         } else if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_CANCELED) {
             deleteExternalStoragePublicPicture(mImageFileName);
+        } else if (requestCode == REQUEST_CLIP_IMAGE && resultCode == RESULT_OK) {
+            setPic(mClipSavePath);
+            ImageHelper.galleryAddPic(this, mClipSavePath);
+            mCurrentPhotoPath = mClipSavePath;
         }
     }
 
