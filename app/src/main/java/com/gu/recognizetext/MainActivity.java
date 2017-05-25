@@ -67,12 +67,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         clipPhotoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mCurrentPhotoPath != null) {
-                    mClipSavePath = createExternalStoragePublicPicture(getImageFileName()).getPath();
-                    ClipImageActivity.prepare().aspectX(3).aspectY(2)//裁剪框横向及纵向上的比例
-                            .inputPath(mCurrentPhotoPath).outputPath(mClipSavePath)//要裁剪的图片地址及裁剪后保存的地址
-                            .startForResult(MainActivity.this, REQUEST_CLIP_IMAGE);
-                }
+                //                if (mCurrentPhotoPath != null) {
+                //                    mClipSavePath = createExternalStoragePublicPicture(getImageFileName()).getPath();
+                //                    ClipImageActivity.prepare().aspectX(3).aspectY(2)//裁剪框横向及纵向上的比例
+                //                            .inputPath(mCurrentPhotoPath).outputPath(mClipSavePath)//要裁剪的图片地址及裁剪后保存的地址
+                //                            .startForResult(MainActivity.this, REQUEST_CLIP_IMAGE);
+                //                }
+                Intent intent = new Intent(MainActivity.this, MarkActivity.class);
+                intent.putExtra("path", mCurrentPhotoPath);
+                startActivity(intent);
             }
         });
 

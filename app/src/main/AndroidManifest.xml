@@ -42,6 +42,10 @@
         </activity>
         <activity android:name=".ClipImageActivity">
         </activity>
+        <activity
+            android:name=".MarkActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
     </application>
 
 </manifest>

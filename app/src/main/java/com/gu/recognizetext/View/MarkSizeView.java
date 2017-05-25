@@ -18,8 +18,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.forfan.bigbang.R;
-import com.forfan.bigbang.util.ViewUtil;
+
+import com.gu.recognizetext.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public class MarkSizeView extends View {
     private static final int DEFAULT_CONFIRM_BUTTON_RES = R.mipmap.ic_done_white_36dp;
     private static final int DEFAULT_CANCEL_BUTTON_RES = R.mipmap.ic_close_capture;
 
-    private static final int BUTTON_EXTRA_WIDTH = ViewUtil.dp2px(8);
+    private static final int BUTTON_EXTRA_WIDTH = 8;
 
     private static final int DEFAULT_VERTEX_WIDTH = 20;//dp
 
@@ -45,11 +45,11 @@ public class MarkSizeView extends View {
     private int markedColor = DEFAULT_MARKED_COLOR;
     private int unmarkedColor = DEFAULT_UNMARKED_COLOR;
     private int strokeColor = DEFAULT_STROKE_COLOR;
-    private int strokeWidth = (int) ViewUtil.dp2px(DEFAULT_STROKE_WIDTH);//dp
+    private int strokeWidth = DEFAULT_STROKE_WIDTH;//dp
     private int vertexColor = DEFAULT_VERTEX_COLOR;
     private int confirmButtonRes = DEFAULT_CONFIRM_BUTTON_RES;
     private int cancelButtonRes = DEFAULT_CANCEL_BUTTON_RES;
-    private int vertexWidth = (int) ViewUtil.dp2px(DEFAULT_VERTEX_WIDTH);
+    private int vertexWidth = DEFAULT_VERTEX_WIDTH;
     private int mActionGap;
 
 
@@ -92,9 +92,9 @@ public class MarkSizeView extends View {
             markedColor = typedArray.getColor(R.styleable.MarkSizeView_markedColor, DEFAULT_MARKED_COLOR);
             unmarkedColor = typedArray.getColor(R.styleable.MarkSizeView_unMarkedColor, DEFAULT_UNMARKED_COLOR);
             strokeColor = typedArray.getColor(R.styleable.MarkSizeView_strokeColor, DEFAULT_STROKE_COLOR);
-            strokeWidth = typedArray.getDimensionPixelSize(R.styleable.MarkSizeView_strokeWidth, (int) ViewUtil.dp2px(DEFAULT_STROKE_WIDTH));
+            strokeWidth = typedArray.getDimensionPixelSize(R.styleable.MarkSizeView_strokeWidth, (int) ViewUtil.dp2px(context, DEFAULT_STROKE_WIDTH));
             vertexColor = typedArray.getColor(R.styleable.MarkSizeView_vertexColor, DEFAULT_VERTEX_COLOR);
-            vertexWidth = typedArray.getDimensionPixelSize(R.styleable.MarkSizeView_vertexWidth, (int) ViewUtil.dp2px(DEFAULT_VERTEX_WIDTH));
+            vertexWidth = typedArray.getDimensionPixelSize(R.styleable.MarkSizeView_vertexWidth, (int) ViewUtil.dp2px(context, DEFAULT_VERTEX_WIDTH));
             confirmButtonRes = typedArray.getResourceId(R.styleable.MarkSizeView_confirmButtonRes, DEFAULT_CONFIRM_BUTTON_RES);
             cancelButtonRes = typedArray.getResourceId(R.styleable.MarkSizeView_cancleButtonRes, DEFAULT_CANCEL_BUTTON_RES);
         }
@@ -131,7 +131,7 @@ public class MarkSizeView extends View {
         confirmBitmap = BitmapFactory.decodeResource(getResources(), confirmButtonRes);
         cancelBitmap = BitmapFactory.decodeResource(getResources(), cancelButtonRes);
 
-        mActionGap = (int) ViewUtil.dp2px(15);
+        mActionGap = ViewUtil.dp2px(context, 15);
 
         mGraphicPath = new GraphicPath();
     }
